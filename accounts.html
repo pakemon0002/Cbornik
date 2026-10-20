@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f2f2f7">
+<title>Аккаунты</title>
+<style>
+  :root {
+    --bg1: #dfe9ff; --bg2: #f3e4ff; --bg3: #ffe9f1;
+    --glass: rgba(255,255,255,.62);
+    --glass-strong: rgba(255,255,255,.82);
+    --border: rgba(255,255,255,.75);
+    --sep: rgba(60,60,67,.12);
+    --text: #1c1c1e; --muted: rgba(60,60,67,.6);
+    --blue: #0a84ff; --red: #ff453a; --fill: rgba(118,118,128,.12);
+    --shadow: 0 8px 32px rgba(31,38,135,.10);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg1: #0b1020; --bg2: #1a1030; --bg3: #2a1020;
+      --glass: rgba(44,44,52,.55); --glass-strong: rgba(58,58,68,.8);
+      --border: rgba(255,255,255,.10); --sep: rgba(255,255,255,.10);
+      --text: #f5f5f7; --muted: rgba(235,235,245,.6);
+      --fill: rgba(118,118,128,.24); --shadow: 0 8px 32px rgba(0,0,0,.45);
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html { min-height: 100%; }
+  body {
+    margin: 0; min-height: 100vh;
+    padding: max(28px, env(safe-area-inset-top)) 16px 60px;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+    color: var(--text);
+    background:
+      radial-gradient(600px 400px at 15% 0%, var(--bg1), transparent 70%),
+      radial-gradient(600px 400px at 90% 10%, var(--bg2), transparent 70%),
+      radial-gradient(700px 500px at 50% 100%, var(--bg3), transparent 70%),
+      var(--bg1);
+    background-attachment: fixed;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 920px; margin: 0 auto; }
+
+  /* header */
+  .top { display: flex; align-items: flex-end; justify-content: space-between; margin: 12px 4px 18px; }
+  h1 { margin: 0; font-size: 34px; font-weight: 700; letter-spacing: -.8px; }
+  .count { color: var(--muted); font-size: 15px; margin-top: 2px; }
+  .circle {
+    width: 40px; height: 40px; border-radius: 50%; border: 0; cursor: pointer;
+    display: grid; place-items: center; color: #fff; background: var(--blue);
+    box-shadow: 0 4px 14px rgba(10,132,255,.4); transition: transform .15s;
+  }
+  .circle:active { transform: scale(.92); }
+  .circle svg { width: 20px; height: 20px; }
+
+  /* search */
+  .bar { display: flex; gap: 10px; margin-bottom: 16px; }
+  .search {
+    flex: 1; display: flex; align-items: center; gap: 8px; padding: 0 12px; height: 38px;
+    background: var(--glass); border: 1px solid var(--border); border-radius: 12px;
+    backdrop-filter: blur(24px) saturate(180%); -webkit-backdrop-filter: blur(24px) saturate(180%);
+  }
+  .search svg { width: 16px; height: 16px; color: var(--muted); flex: none; }
+  .search input { flex: 1; border: 0; background: transparent; outline: none; font-size: 16px; color: var(--text); font-family: inherit; }
+  .search input::placeholder { color: var(--muted); }
+  .pill {
+    height: 38px; padding: 0 14px; border-radius: 12px; border: 1px solid var(--border);
+    background: var(--glass); color: var(--blue); font-size: 15px; font-weight: 500; cursor: pointer;
+    display: flex; align-items: center; gap: 6px; font-family: inherit;
+    backdrop-filter: blur(24px) saturate(180%); -webkit-backdrop-filter: blur(24px) saturate(180%);
+  }
+  .pill svg { width: 16px; height: 16px; }
+  .pill:active { opacity: .6; }
+
+  /* glass table */
+  .glass {
+    background: var(--glass); border: 1px solid var(--border); border-radius: 22px; box-shadow: var(--shadow);
+    backdrop-filter: blur(30px) saturate(180%); -webkit-backdrop-filter: blur(30px) saturate(180%);
+    overflow: hidden;
+  }
+  table { width: 100%; border-collapse: collapse; }
+  th {
+    text-align: left; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em;
+    color: var(--muted); padding: 14px 18px 10px; border-bottom: 1px solid var(--sep);
+  }
+  td { padding: 14px 18px; border-bottom: 1px solid var(--sep); font-size: 16px; }
+  tr:last-child td { border-bottom: 0; }
+  .c { display: flex; align-items: center; gap: 6px; min-height: 28px; }
+  .v { flex: 1; word-break: break-all; cursor: pointer; border-radius: 6px; }
+  .v:active { opacity: .5; }
+  .mono { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 15px; }
+  .ib {
+    flex: none; width: 30px; height: 30px; display: grid; place-items: center; border: 0; border-radius: 50%;
+    background: transparent; color: var(--blue); cursor: pointer; transition: background .15s;
+  }
+  .ib:hover { background: var(--fill); }
+  .ib:active { transform: scale(.9); }
+  .ib svg { width: 17px; height: 17px; }
+  .ib.del { color: var(--red); }
+  .empty { text-align: center; color: var(--muted); padding: 56px 20px; font-size: 16px; }
+  .empty b { display: block; font-size: 38px; margin-bottom: 8px; }
+
+  /* sheet */
+  dialog {
+    border: 0; padding: 0; background: transparent; color: var(--text);
+    width: min(440px, calc(100% - 24px)); margin: auto;
+  }
+  dialog::backdrop { background: rgba(0,0,0,.28); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+  dialog[open] { animation: pop .28s cubic-bezier(.2,.9,.3,1.1); }
+  @keyframes pop { from { opacity: 0; transform: translateY(24px) scale(.97); } }
+  .sheet {
+    background: var(--glass-strong); border: 1px solid var(--border); border-radius: 26px; padding: 18px 18px 20px;
+    backdrop-filter: blur(40px) saturate(180%); -webkit-backdrop-filter: blur(40px) saturate(180%);
+    box-shadow: 0 24px 60px rgba(0,0,0,.25);
+  }
+  .sheet-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .sheet-head h2 { margin: 0; font-size: 17px; font-weight: 600; }
+  .txt { background: none; border: 0; color: var(--blue); font-size: 17px; cursor: pointer; font-family: inherit; padding: 4px; }
+  .txt.b { font-weight: 600; }
+  .group { background: var(--fill); border-radius: 14px; overflow: hidden; }
+  .group label { display: flex; align-items: center; padding: 0 14px; height: 48px; border-bottom: 1px solid var(--sep); }
+  .group label:last-child { border-bottom: 0; }
+  .group span { width: 104px; flex: none; font-size: 16px; }
+  .group input { flex: 1; min-width: 0; border: 0; outline: none; background: transparent; font-size: 16px; color: var(--text); font-family: inherit; text-align: right; }
+  .group input::placeholder { color: var(--muted); }
+  .save {
+    width: 100%; margin-top: 16px; height: 50px; border: 0; border-radius: 14px; cursor: pointer;
+    background: var(--blue); color: #fff; font-size: 17px; font-weight: 600; font-family: inherit;
+  }
+  .save:active { opacity: .8; }
+
+  .toast {
+    position: fixed; left: 50%; bottom: max(28px, env(safe-area-inset-bottom)); transform: translate(-50%, 16px);
+    background: var(--glass-strong); border: 1px solid var(--border); padding: 11px 20px; border-radius: 999px;
+    font-size: 15px; font-weight: 500; opacity: 0; pointer-events: none; transition: .25s;
+    backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); box-shadow: var(--shadow); z-index: 10;
+  }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+  .foot { text-align: center; color: var(--muted); font-size: 12.5px; margin-top: 16px; }
+
+  /* mobile: rows become cards */
+  @media (max-width: 680px) {
+    h1 { font-size: 30px; }
+    thead { display: none; }
+    table, tbody, tr, td { display: block; width: 100%; }
+    tr { padding: 8px 0; border-bottom: 1px solid var(--sep); position: relative; }
+    tr:last-child { border-bottom: 0; }
+    td { border: 0; padding: 7px 18px; }
+    td[data-l]::before { content: attr(data-l); display: block; font-size: 12px; color: var(--muted); margin-bottom: 1px; }
+    td.n, td.a { display: none; }
+    .pill span { display: none; }
+    .pill { padding: 0 11px; }
+    .rowdel { display: grid !important; position: absolute; right: 8px; top: 8px; }
+  }
+  .rowdel { display: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div>
+      <h1>Аккаунты</h1>
+      <div class="count"><span id="count">0</span> записей</div>
+    </div>
+    <button class="circle" id="open" aria-label="Добавить">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+    </button>
+  </div>
+
+  <div class="bar">
+    <div class="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="search" type="search" placeholder="Поиск" autocomplete="off">
+    </div>
+    <button class="pill" id="export">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg><span>CSV</span>
+    </button>
+  </div>
+
+  <div class="glass">
+    <table>
+      <thead><tr><th>#</th><th>Логин</th><th>Пароль</th><th>Почта</th><th>Пароль почты</th><th></th></tr></thead>
+      <tbody id="body"></tbody>
+    </table>
+  </div>
+  <div class="foot">Нажмите на значение, чтобы скопировать · Данные хранятся только в этом браузере</div>
+</div>
+
+<dialog id="dlg">
+  <form class="sheet" id="form" method="dialog" autocomplete="off">
+    <div class="sheet-head">
+      <button type="button" class="txt" id="cancel">Отмена</button>
+      <h2>Новый аккаунт</h2>
+      <button type="submit" class="txt b">Готово</button>
+    </div>
+    <div class="group">
+      <label><span>Логин</span><input id="login" placeholder="username" required></label>
+      <label><span>Пароль</span><input id="pass" placeholder="••••••••" required></label>
+      <label><span>Почта</span><input id="mail" type="email" placeholder="name@mail.com" required></label>
+      <label><span>Пароль почты</span><input id="mailpass" placeholder="••••••••" required></label>
+    </div>
+    <button type="submit" class="save">Сохранить</button>
+  </form>
+</dialog>
+<div class="toast" id="toast"></div>
+
+<script>
+  const KEY = 'accounts_table_v1';
+  let data = [];
+  try { data = JSON.parse(localStorage.getItem(KEY)) || []; } catch (e) {}
+  const shown = new Set();
+  const $ = id => document.getElementById(id);
+  const I = {
+    eye: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>',
+    off: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18M10.6 5.1A10 10 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-3.2 4M6.6 6.6A17 17 0 0 0 2 12s3.6 7 10 7a9.7 9.7 0 0 0 4.2-1M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>',
+    trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg>'
+  };
+
+  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(data)); } catch (e) {} };
+
+  function toast(m) {
+    const t = $('toast'); t.textContent = m; t.classList.add('show');
+    clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('show'), 1300);
+  }
+  function copy(text) {
+    const ok = () => toast('Скопировано');
+    const fb = () => { const a = document.createElement('textarea'); a.value = text; document.body.appendChild(a); a.select(); document.execCommand('copy'); a.remove(); ok(); };
+    (navigator.clipboard ? navigator.clipboard.writeText(text).then(ok, fb) : fb());
+  }
+  function ib(svg, title, cls, fn) {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'ib ' + (cls || ''); b.title = title; b.innerHTML = svg; b.onclick = fn; return b;
+  }
+  function cell(label, value, key) {
+    const td = document.createElement('td'); td.dataset.l = label;
+    const c = document.createElement('div'); c.className = 'c';
+    const v = document.createElement('span'); v.className = 'v'; v.title = 'Копировать';
+    v.onclick = () => copy(value);
+    c.appendChild(v);
+    if (key) {
+      const vis = shown.has(key);
+      v.classList.add('mono');
+      v.textContent = vis ? value : '•'.repeat(Math.min(Math.max(value.length, 6), 12));
+      c.appendChild(ib(vis ? I.off : I.eye, 'Показать / скрыть', '', () => { vis ? shown.delete(key) : shown.add(key); render(); }));
+    } else v.textContent = value;
+    td.appendChild(c); return td;
+  }
+  function remove(i) { if (confirm('Удалить запись?')) { data.splice(i, 1); save(); render(); } }
+
+  function render() {
+    const q = $('search').value.trim().toLowerCase();
+    const body = $('body'); body.textContent = '';
+    $('count').textContent = data.length;
+    const rows = data.map((r, i) => ({ r, i })).filter(({ r }) => !q || r.login.toLowerCase().includes(q) || r.mail.toLowerCase().includes(q));
+    if (!rows.length) {
+      const tr = document.createElement('tr'), td = document.createElement('td');
+      td.className = 'empty'; td.colSpan = 6;
+      const b = document.createElement('b'); b.textContent = data.length ? '🔍' : '🔐';
+      td.appendChild(b);
+      td.appendChild(document.createTextNode(data.length ? 'Ничего не найдено' : 'Здесь пока пусто. Нажмите +, чтобы добавить аккаунт'));
+      tr.appendChild(td); body.appendChild(tr); return;
+    }
+    rows.forEach(({ r, i }, n) => {
+      const tr = document.createElement('tr');
+      const num = document.createElement('td'); num.className = 'n'; num.style.color = 'var(--muted)'; num.style.width = '44px'; num.textContent = n + 1;
+      tr.appendChild(num);
+      tr.appendChild(cell('Логин', r.login));
+      tr.appendChild(cell('Пароль', r.pass, 'p' + r.id));
+      tr.appendChild(cell('Почта', r.mail));
+      tr.appendChild(cell('Пароль почты', r.mailpass, 'm' + r.id));
+      const a = document.createElement('td'); a.className = 'a'; a.style.width = '56px';
+      a.appendChild(ib(I.trash, 'Удалить', 'del', () => remove(i)));
+      tr.appendChild(a);
+      const rd = ib(I.trash, 'Удалить', 'del rowdel', () => remove(i));
+      tr.appendChild(rd);
+      body.appendChild(tr);
+    });
+  }
+
+  const dlg = $('dlg');
+  $('open').onclick = () => { $('form').reset(); dlg.showModal(); setTimeout(() => $('login').focus(), 50); };
+  $('cancel').onclick = () => dlg.close();
+  dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); });
+  $('form').addEventListener('submit', e => {
+    e.preventDefault();
+    if (!$('form').checkValidity()) { $('form').reportValidity(); return; }
+    data.push({
+      id: Date.now() + Math.random().toString(36).slice(2, 6),
+      login: $('login').value.trim(), pass: $('pass').value,
+      mail: $('mail').value.trim(), mailpass: $('mailpass').value
+    });
+    save(); dlg.close(); render(); toast('Добавлено');
+  });
+  $('search').addEventListener('input', render);
+  $('export').onclick = () => {
+    if (!data.length) return toast('Нечего экспортировать');
+    const esc = v => '"' + String(v).replace(/"/g, '""') + '"';
+    const csv = '\ufeff' + ['Логин,Пароль,Почта,Пароль от почты'].concat(data.map(r => [r.login, r.pass, r.mail, r.mailpass].map(esc).join(','))).join('\n');
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+    a.download = 'accounts.csv'; a.click(); URL.revokeObjectURL(a.href);
+  };
+  render();
+</script>
+</body>
+</html>
